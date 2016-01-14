@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>lazyloadIMG-图片懒加载-Tab选择卡图片加载</title>
+	<style>
+	*{margin: 0;padding: 0}
+	ul,li{list-style: none;}
+	
+	.section{width: 800px;margin: 0 auto 20px;border: 1px solid #f00;}
+	.menu{width: 100%;height: 35px;}
+	.menu li{float:left;width:200px;height: 35px;line-height: 35px;text-align: center;background: #f00;color: #fff;font-weight: 700;font-size: 20px;}
+	.menu li.active{background: #fff;color:#000;}
+	.content{width:100%;height:200px;overflow: hidden;}
+	.content li{display: none; width:800px; height:200px;}
+	.content li.active{display: block;}
+	.content li img{width: 180px;height: 180px;margin:10px;}
+
+	.demo li{padding:10px; }
+	.demo2{width: 800px; height: 220px; border: 2px solid #666; margin: 0 auto; overflow-x: scroll; overflow-y: hidden;}
+	.demo2 p{width: 3200px;height: 200px;}
+	.demo2 p img{width: 180px; height: 180px; margin:10px;}
+	</style>
+</head>
+<body>
+<div class="section" id="section1">
+	<ul class="menu">
+		<li class="active">1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+	</ul>
+	<ul class="content">
+		<li class="active"><img src="images/blank.gif" _src="images/01.jpg" /><img src="images/blank.gif" _src="images/02.jpg" /><img src="images/blank.gif" _src="images/03.jpg" /><img src="images/blank.gif" _src="images/04.jpg" /></li>
+		<li><img src="images/blank.gif" _src="images/05.jpg" /><img src="images/blank.gif" _src="images/06.jpg" /><img src="images/blank.gif" _src="images/07.jpg" /><img src="images/blank.gif" _src="images/08.jpg" /></li>
+		<li><img src="images/blank.gif" _src="images/09.jpg" /><img src="images/blank.gif" _src="images/10.jpg" /><img src="images/blank.gif" _src="images/11.jpg" /><img src="images/blank.gif" _src="images/12.jpg" /></li>
+		<li><img src="images/blank.gif" _src="images/13.jpg" /><img src="images/blank.gif" _src="images/14.jpg" /><img src="images/blank.gif" _src="images/15.jpg" /><img src="images/blank.gif" _src="images/16.jpg" /></li>
+	</ul>
+</div>
+
+<ul class="demo" id="demo">
+	<li><img src="images/blank.gif" _src="images/17.jpg" width='80' /></li>
+	<li><img src="images/blank.gif" _src="images/18.jpg" width='300' /></li>
+	<li><img src="images/blank.gif" _src="images/19.jpg" width='150' /></li>
+	<li><img src="images/blank.gif" _src="images/20.jpg" width='300' /></li>
+	<li><img src="images/blank.gif" _src="images/21.jpg" width='800' /></li>
+	<li><img src="images/blank.gif" _src="images/22.jpg" width='300' /></li>
+	<li><img src="images/blank.gif" _src="images/23.jpg" width='600' /></li>
+	<li><img src="images/blank.gif" _src="images/24.jpg" width='300' /></li>
+</ul>
+
+<div class="section" id="section2">
+	<ul class="menu">
+		<li class="active">1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+	</ul>
+	<ul class="content">
+		<li class="active"><img src="images/blank.gif" data-src="images/01.jpg" /><img src="images/blank.gif" data-src="images/02.jpg" /><img src="images/blank.gif" data-src="images/03.jpg" /><img src="images/blank.gif" data-src="images/04.jpg" /></li>
+		<li><img src="images/blank.gif" data-src="images/05.jpg" /><img src="images/blank.gif" data-src="images/06.jpg" /><img src="images/blank.gif" data-src="images/07.jpg" /><img src="images/blank.gif" data-src="images/08.jpg" /></li>
+		<li><img src="images/blank.gif" data-src="images/09.jpg" /><img src="images/blank.gif" data-src="images/10.jpg" /><img src="images/blank.gif" data-src="images/11.jpg" /><img src="images/blank.gif" data-src="images/12.jpg" /></li>
+		<li><img src="images/blank.gif" data-src="images/13.jpg" /><img src="images/blank.gif" data-src="images/14.jpg" /><img src="images/blank.gif" data-src="images/15.jpg" /><img src="images/blank.gif" data-src="images/16.jpg" /></li>
+	</ul>
+</div>
+
+<!-- 引用lazyloadIMG -->
+<script src='lazyloadIMG.min.js'></script>
+<script>
+//选项卡
+var Tab = function(opts) {
+	var _opts = {
+		id: '',
+		index: 0,
+		event: 'click'
+	};
+	for (var k in opts)
+		if (opts[k] !== undefined) _opts[k] = opts[k];
+	this.dom = typeof _opts.id == 'string' ? document.getElementById(_opts.id) : _opts.id;
+	this.thumbs = this.dom.getElementsByTagName('ul')[0].getElementsByTagName('li');
+	this.items = this.dom.getElementsByTagName('ul')[1].getElementsByTagName('li');
+	this.total = this.items.length;
+	this.index = _opts.index;
+	this.oindex = 0;
+	this.event = _opts.event;
+	this.init();
+};
+Tab.prototype = {
+	init: function() {
+		this.show(this.index);
+		this.bind();
+	},
+	show: function(index) {
+		this.items[index].className = 'active';
+		this.thumbs[index].className = 'active';
+		//this.loadimage(index);	
+	},
+	hide: function(index) {
+		this.items[index].className = '';
+		this.thumbs[index].className = '';
+	},
+	/*loadimage: function(index){
+		var imgs = this.items[index].getElementsByTagName('IMG');
+		for(var i = 0, n = imgs.length; i < n; i++){
+			var img = imgs[i];
+			if(img.getAttribute('_src')){
+				img.setAttribute('src', img.getAttribute('_src'));
+				img.removeAttribute('_src');	
+			}
+		}
+	},*/
+	bind: function() {
+		var _this = this;
+		for (var i = 0; i < this.total; i++) {
+			this.thumbs[i].index = i;
+			this.thumbs[i]['on' + this.event] = function() {
+				if (this.index == _this.oindex) return;
+				_this.hide(_this.oindex);
+				_this.show(this.index);
+				_this.oindex = this.index;
+			}
+		}
+	}
+};
+
+
+//use 1 结合Tab选择卡 定义每个加载
+
+new Tab({
+	id: 'section1',
+	event: 'mouseover'
+});
+new Tab({
+	id: 'section2'
+});
+
+new lazyloadIMG({
+	container: document.getElementById('section1'),
+	event: 'mouseover'
+});
+new lazyloadIMG({
+	container: document.getElementById('section2'),
+	attribute: 'data-src',
+	event: 'click'
+});
+new lazyloadIMG({
+	container: document.getElementById('demo'),
+	onLoad: function(imgs){
+		// for(var i = 0, n = imgs.length; i < n; i++){
+		// 	console.log(imgs[i].src);
+		// }
+	},
+	onEnd: function(){
+		//console.log('加载完成')
+	}
+});
+
+
+
+/*
+//use 2 结合Tab选择卡 Tab切换事件与加载event事件一致 定义一个通用加载(建议定义click事件 性能相关)
+new Tab({
+	id: 'section1'
+});
+new Tab({
+	id: 'section2'
+});
+new lazyloadIMG({
+	event: 'click',
+	onLoad: function(imgs){
+		for(var i = 0, n = imgs.length; i < n; i++){
+			console.log(imgs[i].src);
+		}
+	},
+	onEnd: function(){
+		console.log('加载完成')
+	}
+});
+*/
+
+</script>
+
+</body>
+</html>
